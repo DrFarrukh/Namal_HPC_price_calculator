@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Namal HPC Price Calculator</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f7f6; color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h1 { color: #0056b3; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; }
+        input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background-color: #007bff; color: white; padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; font-weight: 600; transition: background-color 0.3s; }
+        button:hover { background-color: #0056b3; }
+        #result { margin-top: 25px; font-size: 24px; font-weight: bold; color: #28a745; min-height: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Namal HPC Price Calculator</h1>
+        <form id="price-form">
+            <div class="form-group">
+                <label for="cpus">CPU Cores:</label>
+                <input type="number" id="cpus" name="cpus" required min="1" value="4">
+            </div>
+            <div class="form-group">
+                <label for="ram">System RAM (GB):</label>
+                <input type="number" id="ram" name="ram" required min="1" value="4">
+            </div>
+            <div class="form-group">
+                <label for="gpus">Number of GPUs:</label>
+                <input type="number" id="gpus" name="gpus" required min="0" value="0">
+            </div>
+            <button type="submit">Calculate Price</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('price-form').addEventListener('submit', async function(event) {
+            event.preventDefault(); // Stop the default page reload
+
+            // Get values from the form
+            const cpus = document.getElementById('cpus').value;
+            const ram = document.getElementById('ram').value;
+            const gpus = document.getElementById('gpus').value;
+            const resultDiv = document.getElementById('result');
+
+            // Send data to the Flask back-end
+            const response = await fetch('/calculate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cpus, ram, gpus })
+            });
+
+            const data = await response.json();
+
+            // Display the result or an error
+            if (response.ok) {
+                resultDiv.textContent = `PKR ${data.price} / hour`;
+            } else {
+                resultDiv.textContent = `Error: ${data.error}`;
+                resultDiv.style.color = 'red';
+            }
+        });
+    </script>
+</body>
+</html>
